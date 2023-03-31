@@ -1,0 +1,77 @@
+##fileformat=VCFv4.0
+##fileDate=20230331
+##source=lofreq call -d 101000 -f /fast/mvazque2/rbbt/var/fasta_indices/16beaa30591fbef604f9c752327c4bf0/hg38.fa.gz --verbose --no-default-filter -b 1 -a 0.010000 -C 7 -s -S /home/mvazque2/.rbbt/var/jobs/HTS/lofreq_pre/ARGO-evo_b3644f3a8a726089f6e5227f2b9a33d4.files/output/normal_stringent.snvs.vcf.gz,/home/mvazque2/.rbbt/var/jobs/HTS/lofreq_pre/ARGO-evo_b3644f3a8a726089f6e5227f2b9a33d4.files/output/normal_stringent.indels.vcf.gz -o /home/mvazque2/.rbbt/var/jobs/HTS/lofreq_pre/ARGO-evo_b3644f3a8a726089f6e5227f2b9a33d4.files/output/tumor_relaxed.vcf.gz /home/mvazque2/.rbbt/var/bam_indices/2627857bbc54f44942cea315d419c755/ARGO-evo.bam 
+##reference=/fast/mvazque2/rbbt/var/fasta_indices/16beaa30591fbef604f9c752327c4bf0/hg38.fa.gz
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=SB,Number=1,Type=Integer,Description="Phred-scaled strand bias at this position">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Counts for ref-forward bases, ref-reverse, alt-forward and alt-reverse bases">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##INFO=<ID=CONSVAR,Number=0,Type=Flag,Description="Indicates that the variant is a consensus variant (as opposed to a low frequency variant).">
+##INFO=<ID=HRUN,Number=1,Type=Integer,Description="Homopolymer length to the right of report indel position">
+##FILTER=<ID=min_dp_7,Description="Minimum Coverage 7">
+##FILTER=<ID=max_dp_100000,Description="Maximum Coverage 100000">
+##FILTER=<ID=sb_fdr,Description="Strand-Bias Multiple Testing Correction: fdr corr. pvalue > 0.001000">
+##FILTER=<ID=snvqual_bonf,Description="SNV Quality Multiple Testing Correction: bonf corr. pvalue < 1.000000">
+##INFO=<ID=UNIQ,Number=0,Type=Flag,Description="Unique, i.e. not detectable in paired sample">
+##INFO=<ID=UQ,Number=1,Type=Integer,Description="Phred-scaled uniq score at this position">
+##INFO=<ID=SOMATIC,Number=0,Type=Flag,Description="Somatic event">
+##FILTER=<ID=uq_fdr,Description="Uniq Multiple Testing Correction: fdr corr. pvalue < 0.001000">
+##FILTER=<ID=indelqual_bonf,Description="Indel Quality Multiple Testing Correction: bonf corr. pvalue < 0.010000">
+##FILTER=<ID=uq_fdr,Description="Uniq Multiple Testing Correction: fdr corr. pvalue < 0.000100">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Depth">
+##FORMAT=<ID=AF,Number=1,Type=Float,Description="Allelic frequency calculated from read context counts as (Full + Partial + Core + Realigned + Alt) / Coverage">
+##FORMAT=<ID=SB,Number=4,Type=Integer,Description="">
+##FORMAT=<ID=DP4,Number=1,Type=String,Description="">
+##FORMAT=<ID=SOMATIC,Number=1,Type=String,Description="">
+##FORMAT=<ID=UQ,Number=1,Type=Integer,Description="">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	Tumor
+chr1	30923	.	G	T	73	PASS		DP:AF:SB:DP4:SOMATIC:UQ	20:0.200000:0:8,8,2,2:SOMATIC:48
+chr1	49298	.	T	C	92	PASS		DP:AF:SB:DP4:SOMATIC:UQ	21:0.476190:0:6,5,5,5:SOMATIC:39
+chr1	83084	.	T	A	120	PASS		DP:AF:SB:DP4:SOMATIC:UQ	39:0.179487:0:15,16,3,4:SOMATIC:105
+chr1	88169	.	C	T	52	PASS		DP:AF:SB:DP4:SOMATIC:UQ	35:0.114286:0:15,15,2,2:SOMATIC:107
+chr1	89946	.	A	T	109	PASS		DP:AF:SB:DP4:SOMATIC:UQ	37:0.351351:0:12,12,6,7:SOMATIC:60
+chr1	92858	.	G	T	168	PASS		DP:AF:SB:DP4:SOMATIC:UQ	64:0.296875:0:23,21,10,9:SOMATIC:102
+chr1	125957	.	G	A	199	PASS		DP:AF:SB:DP4:SOMATIC:UQ	47:0.361702:0:15,15,8,9:SOMATIC:102
+chr1	727242	.	G	A	175	PASS		DP:AF:SB:DP4:SOMATIC:UQ	34:0.352941:0:11,11,6,6:SOMATIC:75
+chr1	778554	.	C	G	222	PASS		DP:AF:SB:DP4:SOMATIC:UQ	56:0.285714:0:19,21,7,9:SOMATIC:72
+chr1	778570	.	C	G	93	PASS		DP:AF:SB:DP4:SOMATIC:UQ	45:0.177778:0:18,19,4,4:SOMATIC:57
+chr1	779968	.	T	G	68	PASS		DP:AF:SB:DP4:SOMATIC:UQ	21:0.238095:0:8,8,3,2:SOMATIC:87
+chr1	784860	.	T	C	101	PASS		DP:AF:SB:DP4:SOMATIC:UQ	42:0.333333:0:14,14,7,7:SOMATIC:84
+chr1	788511	.	G	C	369	PASS		DP:AF:SB:DP4:SOMATIC:UQ	43:0.395349:0:13,13,8,9:SOMATIC:96
+chr1	789489	.	C	A	267	PASS		DP:AF:SB:DP4:SOMATIC:UQ	53:0.339623:0:18,16,9,9:SOMATIC:111
+chr1	789502	.	T	C	137	PASS		DP:AF:SB:DP4:SOMATIC:UQ	55:0.236364:1:20,22,7,6:SOMATIC:105
+chr1	791559	.	G	C	54	PASS		DP:AF:SB:DP4:SOMATIC:UQ	38:0.157895:0:15,17,3,3:SOMATIC:90
+chr1	792862	.	C	G	77	PASS		DP:AF:SB:DP4:SOMATIC:UQ	45:0.133333:1:19,19,2,4:SOMATIC:87
+chr1	794299	.	C	G	195	PASS		DP:AF:SB:DP4:SOMATIC:UQ	41:0.317073:0:14,13,7,6:SOMATIC:87
+chr1	813498	.	G	T	119	PASS		DP:AF:SB:DP4:SOMATIC:UQ	12:0.833333:0:1,1,7,3:SOMATIC:72
+chr1	814327	.	A	G	66	PASS		DP:AF:SB:DP4:SOMATIC:UQ	12:0.583333:0:2,2,3,5:SOMATIC:87
+chr1	814673	.	A	C	312	PASS		DP:AF:SB:DP4:SOMATIC:UQ	22:0.545455:1:6,4,6,6:SOMATIC:99
+chr1	817213	.	T	G	94	PASS		DP:AF:SB:DP4:SOMATIC:UQ	18:0.333333:1:6,6,2,4:SOMATIC:87
+chr1	818812	.	A	G	381	PASS		DP:AF:SB:DP4:SOMATIC:UQ	29:0.620690:1:4,7,9,9:SOMATIC:72
+chr1	820507	.	C	G	158	PASS		DP:AF:SB:DP4:SOMATIC:UQ	20:0.400000:0:6,6,4,4:SOMATIC:108
+chr1	820884	.	C	T	260	PASS		DP:AF:SB:DP4:SOMATIC:UQ	33:0.363636:0:11,9,7,5:SOMATIC:54
+chr1	821224	.	A	G	111	PASS		DP:AF:SB:DP4:SOMATIC:UQ	19:0.421053:0:5,4,5,5:SOMATIC:126
+chr1	822260	.	G	A	221	PASS		DP:AF:SB:DP4:SOMATIC:UQ	23:0.478261:0:6,6,5,6:SOMATIC:102
+chr1	824457	.	T	A	124	PASS		DP:AF:SB:DP4:SOMATIC:UQ	19:0.631579:0:3,4,6,6:SOMATIC:72
+chr1	826372	.	C	T	86	PASS		DP:AF:SB:DP4:SOMATIC:UQ	24:0.291667:0:9,8,4,3:SOMATIC:84
+chr1	827105	.	C	A	207	PASS		DP:AF:SB:DP4:SOMATIC:UQ	29:0.448276:0:8,8,7,6:SOMATIC:60
+chr1	832873	.	A	C	60	PASS		DP:AF:SB:DP4:SOMATIC:UQ	39:0.256410:0:14,15,5,5:SOMATIC:51
+chr1	834449	.	C	A	128	PASS		DP:AF:SB:DP4:SOMATIC:UQ	37:0.297297:0:13,13,6,5:SOMATIC:69
+chr1	836443	.	T	C	119	PASS		DP:AF:SB:DP4:SOMATIC:UQ	37:0.162162:0:17,14,3,3:SOMATIC:81
+chr1	837375	.	A	C	337	PASS		DP:AF:SB:DP4:SOMATIC:UQ	79:0.253165:0:28,30,11,9:SOMATIC:99
+chr1	839356	.	A	C	77	PASS		DP:AF:SB:DP4:SOMATIC:UQ	58:0.137931:0:25,25,4,4:SOMATIC:84
+chr1	839494	.	A	C	133	PASS		DP:AF:SB:DP4:SOMATIC:UQ	42:0.238095:0:17,15,5,5:SOMATIC:72
+chr1	839543	.	G	C	92	PASS		DP:AF:SB:DP4:SOMATIC:UQ	42:0.190476:0:17,16,4,4:SOMATIC:78
+chr1	840046	.	G	A	80	PASS		DP:AF:SB:DP4:SOMATIC:UQ	42:0.166667:0:17,18,4,3:SOMATIC:72
+chr1	841742	.	A	T	137	PASS		DP:AF:SB:DP4:SOMATIC:UQ	63:0.222222:2:23,26,8,6:SOMATIC:90
+chr1	843189	.	A	G	210	PASS		DP:AF:SB:DP4:SOMATIC:UQ	48:0.312500:0:16,17,7,8:SOMATIC:81
+chr1	843942	.	A	G	337	PASS		DP:AF:SB:DP4:SOMATIC:UQ	38:0.394737:0:12,11,7,8:SOMATIC:81
+chr1	844647	.	G	T	249	PASS		DP:AF:SB:DP4:SOMATIC:UQ	38:0.342105:0:12,12,6,7:SOMATIC:87
+chr1	849670	.	G	A	362	PASS		DP:AF:SB:DP4:SOMATIC:UQ	51:0.392157:0:16,15,10,10:SOMATIC:72
+chr1	850609	.	T	C	123	PASS		DP:AF:SB:DP4:SOMATIC:UQ	51:0.176471:0:21,21,4,5:SOMATIC:99
+chr1	851805	.	G	A	84	PASS		DP:AF:SB:DP4:SOMATIC:UQ	35:0.200000:0:14,14,3,4:SOMATIC:120
+chr1	851882	.	C	G	219	PASS		DP:AF:SB:DP4:SOMATIC:UQ	48:0.416667:1:14,14,11,9:SOMATIC:111
+chr1	852305	.	G	T	218	PASS		DP:AF:SB:DP4:SOMATIC:UQ	55:0.254545:0:21,19,7,7:SOMATIC:87
+chr1	852464	.	C	T	165	PASS		DP:AF:SB:DP4:SOMATIC:UQ	39:0.282051:0:14,14,6,5:SOMATIC:72
+chr1	853876	.	T	C	124	PASS		DP:AF:SB:DP4:SOMATIC:UQ	61:0.163934:0:26,25,5,5:SOMATIC:108

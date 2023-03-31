@@ -1,0 +1,4 @@
+data/mutect2.vcf
+data/strelka.vcf
+data/lofreq.vcf
+data/muse.vcf
