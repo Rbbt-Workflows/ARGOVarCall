@@ -3,6 +3,7 @@ ARGO-VarCall=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sa
  bin=bin filter="*"{
  }
  lib=lib {
+  ARGOVarCall.rb
  }
  test=test {
   test_helper.rb

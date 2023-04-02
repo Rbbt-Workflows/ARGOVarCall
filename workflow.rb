@@ -3,25 +3,25 @@ require 'rbbt/workflow'
 
 Misc.add_libdir if __FILE__ == $0
 
-#require 'rbbt/sources/ARGOVarCall'
+require 'ARGOVarCall'
 
 Workflow.require_workflow "HTS"
 module ARGOVarCall
   module CompareIndels
     extend Workflow
 
-    input :combined_VCF, :file, "Combined caller VCF", nil, :nofile => true
+    input :combined_vcf, :file, "Combined caller VCF", nil, :nofile => true
     task :mutation_positions => :tsv do |vcf|
 
       parser = TSV::Parser.new vcf, :type => :list
       dumper = TSV::Dumper.new :key_field => "Mutation ID", :fields => ["Start", "Delete", "Added", "Genomic mutation", "CHR"] + parser.fields, :type => :list
       dumper.init
-      TSV.traverse parser, :type => :array, :into => dumper do |chr,values|
+      TSV.traverse parser, :type => :array, :into => dumper, :bar => self.progress_bar("Finding mutation positions") do |chr,values|
         parts = [chr] + values
         chr, pos, rsid, ref, alts, qual, filter = parts
         pos = pos.to_i
 
-        filter = filter.split(";").collect{|v| v.split("--").first } * "+"
+        filter = filter.split(";").collect{|v| v.split("--").first }.uniq * "+"
 
         new_pos, muts = Misc.correct_vcf_mutation(pos, ref, alts)
         res = muts.collect do |mut|
@@ -38,7 +38,7 @@ module ARGOVarCall
 
     dep :mutation_positions
     task :ranges => :array do
-      TSV.traverse step(:mutation_positions), :into => :stream do |id,values|
+      TSV.traverse step(:mutation_positions), :into => :stream, :bar => self.progress_bar("Calulating ranges") do |id,values|
         chr = id.split(":").first
         pos, ins, del = values[0..2].collect{|v| v.to_i }
         eend = pos + ins + del
@@ -48,13 +48,13 @@ module ARGOVarCall
 
     dep :ranges
     task :overlaps => :tsv do
-      io = CMD.cmd('sort -k1,1 -k2,2n', :in => step(:ranges).join.path.open, :pipe => true)
+      io = CMD.cmd('sort -k1,1 -k2,2n', :in => step(:ranges).get_stream, :pipe => true)
 
       chunk = []
       chunk_start, chunk_end, chunk_chr = nil, nil, nil
       slack = 1
       tsv = TSV.setup({}, "Range~Mutation ID#:type=:flat")
-      TSV.traverse io, :type => :array do |line|
+      TSV.traverse io, :type => :array, :bar => self.progress_bar("Finding overlaps") do |line|
         chr, start, ins, del, id = line.split("\t")
         start = start.to_i
         ins = ins.to_i
@@ -90,45 +90,18 @@ module ARGOVarCall
       tsv
     end
 
-    def self.dna_after_mutations(chr_sequence, mutations)
-      chr_sequence = chr_sequence.dup.split("")
-      changes = mutations.collect{|m| parts = m.split(":"); [parts[1].to_i - 1, parts[2]]}
-      changes.sort_by{|p| p.first }.reverse.each do |pos,change|
-        change = change.split("")
-
-        if change[0] == "-"
-          while change[0] == "-"
-            chr_sequence.delete_at pos
-            change.shift
-          end
-          if Array === chr_sequence[pos]
-            Log.warn "Double hit: #{mutations.inspect}"
-            next
-          end
-          chr_sequence[pos] = change * "" + chr_sequence[pos] if change.any?
-        else
-          change[0] = chr_sequence[pos] if change[0] == "+"
-          chr_sequence[pos] = change if change.any?
-        end
-
-      end
-
-      chr_sequence = chr_sequence*""
-
-      chr_sequence.gsub("-",'')
-    end
-
     helper :chromosome do |code|
       @chromosomes ||= {}
       @chromosomes[code] ||= begin
                                require 'rbbt/sources/organism'
                                organism = "Hsa/may2017"
+                               code = "MT" if code == "chrM"
                                Organism.send("chromosome_#{code.sub('chr','')}", organism).read
                              end
     end
 
 
-    dep :overlaps
+    dep :overlaps, :compute => :produce
     task :reconstructed_sequence => :tsv do
       pad = 3
       range_sequences = {}
@@ -138,6 +111,7 @@ module ARGOVarCall
         range = range.first if Array === range
 
         chr, start, eend = range.split(":")
+        next if chr.include? "_"
         start = start.to_i
         eend = eend.to_i
 
@@ -186,13 +160,13 @@ module ARGOVarCall
     end
 
     dep :reconstructed_sequence
-    task :extended_validations => :tsv do
-      result = TSV.setup({}, :key_fields => "Range", :fields => %w(Mutation IDs), :type => :flat) 
+    task :equivalent_changes => :tsv do
+      result = TSV.setup({}, :key_fields => "Range", :fields => ["Mutation IDs"], :type => :flat) 
       TSV.traverse step(:reconstructed_sequence) do |range,values,fields|
         mutations, reference, caller_sequences = values
 
         seq_vcs = {}
-        fields.zip(values)[3..-1].each do |vc,seq|
+        fields.zip(values)[2..-1].each do |vc,seq|
           next if seq.empty?
           seq_vcs[seq] ||= []
           seq_vcs[seq] << vc
@@ -207,6 +181,25 @@ module ARGOVarCall
         end
       end
       result
+    end
+
+    dep :equivalent_changes
+    task :equivalent_mutations => :tsv do
+      dumper = TSV::Dumper.new :key_field => "Genomic Mutation", :fields => %w(Callers ID Others), :type => :double
+      dumper.init
+      TSV.traverse step(:equivalent_changes), :into => :dumper do |range,entries|
+        res = []
+        res.extend MultipleResult
+        entries.each do |entry|
+          callers, mutations = entry.split(" => ")
+          id = Misc.digest(mutations)
+          mutations = mutations.split(";").collect{|m| m.split(":")[0..4] * ":" }.uniq
+          mutations.each do |mutation|
+            res << [mutation, [callers.split("+"), id, mutations - [mutation]]]
+          end
+        end
+        res
+      end
     end
 
   end
@@ -226,12 +219,121 @@ module ARGOVarCall
     HTS.combine_caller_vcfs(list)
   end
 
+  dep :combine_vcf
+  dep_task :equivalent_mutations, CompareIndels, :equivalent_mutations, :combined_vcf => :combine_vcf
 
-  dep_task :validations, CompareIndels, :extended_validations
+  dep :combine_vcf
+  dep :equivalent_mutations
+  extension :vcf
+  task :extended_validation_combined_vcf => :text do
+    equivalent_mutations = step(:equivalent_mutations).load
+
+    TSV.traverse step(:combine_vcf), :type => :line, :bar => self.progress_bar("Adding validation information"), :into => :stream do |line|
+      next line if line =~ /^##/
+      if line =~ /^#?CHR/
+        '##INFO=<ID=UniqueRegionID,Number=1,Type=String,Description="Unique ID of ambiguously reported mutation">' + "\n" +
+        '##INFO=<ID=ValidatedBy,Number=.,Type=String,Description="Callers that validate the mutation, posibly with different mutations">' + "\n" +
+          line
+      else
+        parts = line.split("\t")
+        mutation = parts[0..4] * ":"
+        info = Hash[parts[7].split(";").collect{|p| p.split("=") }]
+        if equivalent_mutations.include? mutation
+          callers, id, others = equivalent_mutations[mutation]
+          info["ValidatedBy"] = (info["CalledBy"].split(",") + callers).uniq * ","
+          info["UniqueRegionID"] = "Ambiguous-" + id.first
+        else
+          info["ValidatedBy"] = info["CalledBy"]
+          info["UniqueRegionID"] = Misc.digest(mutation)
+        end
+        parts[7] = info.collect{|p| p * "=" } * ";"
+
+        parts * "\t"
+      end
+    end
+  end
+
+  dep :extended_validation_combined_vcf
+  input :consensus_field, :select, "Consensus field to use", "ValidatedBy", :select_options => %w(CalledBy ValidatedBy)
+  input :min_validation, :integer, "Minimum number of validating callers", 2
+  input :filter_regime, :select, "How many callers must have a PASS filter originally", :one, :select_options => %w(all one none)
+  extension :vcf
+  task :fully_annotated_consensus_vcf => :text do |consensus_field, min_validation,filter_regime|
+    TSV.traverse step(:extended_validation_combined_vcf), :type => :line, :bar => self.progress_bar("Calculating consensus"), :into => :stream do |line|
+      next line if line =~ /^##/
+
+      if line =~ /^#?CHR/
+        "##FILTER=<ID=PASS,Description=\"Consensus validated, at least #{min_validation} callers support the variant (#{filter_regime} need to have an original PASS filter)}\">" + "\n" +
+        "##FILTER=<ID=FAIL,Description=\"Consensus not validated, less than #{min_validation} callers support the variant (#{filter_regime} need to have an original PASS filter)}\">" + "\n" +
+        line
+      else
+        parts = line.split("\t")
+
+        info = Hash[parts[7].split(";").collect{|p| p.split("=") }]
+
+        callers = info[consensus_field].split(",")
+
+        filters = parts[6].split(";").collect{|p| p.split("--").last }
+
+        case filter_regime.to_s
+        when 'all'
+          pass = filters.uniq == ["PASS"]
+        when 'one'
+          pass = filters.include? "PASS"
+        else
+          pass = true
+        end
+
+
+        if pass && callers.length >= min_validation
+          parts[6] = "PASS;" + parts[6]
+        else
+          parts[6] = "FAIL;" + parts[6]
+        end
+
+        parts * "\t"
+      end
+    end
+  end
+
+
+  dep :fully_annotated_consensus_vcf
+  extension :vcf
+  task :consensus_vcf => :text do
+    TSV.traverse step(:fully_annotated_consensus_vcf), :type => :line, :bar => self.progress_bar("Cleaning VCF of extended annotations"), :into => :stream do |line|
+      if line.start_with? "##"
+        if line.include? "--"
+          next
+        else
+          next line
+        end
+      end
+
+      next line if line.start_with? "#"
+
+      parts = line.split("\t")
+
+      parts[6] = parts[6].split(";").reject{|p| p.include? "--" } * ";"
+
+      info = Hash[parts[7].split(";").collect{|p| p.split("=") }]
+      info.delete_if{|k,v| k.include? "--" }
+      parts[7] = info.collect{|p| p * "=" } * ";"
+
+      good_format = parts[8].split(":").collect{|p| ! p.include? "--" }
+      parts[8] = good_format.zip(parts[8].split(":")).select{|g,p| g }.collect{|g,p| p } * ":"
+      parts[9] = good_format.zip(parts[9].split(":")).select{|g,p| g }.collect{|g,p| p } * ":"
+      parts[10] = good_format.zip(parts[10].split(":")).select{|g,p| g }.collect{|g,p| p } * ":"
+
+
+      parts * "\t"
+    end
+
+  end
+  
 end
 
-  #require 'ARGOVarCall/tasks/basic.rb'
+#require 'ARGOVarCall/tasks/basic.rb'
 
-  #require 'rbbt/knowledge_base/ARGOVarCall'
-  #require 'rbbt/entity/ARGOVarCall'
+#require 'rbbt/knowledge_base/ARGOVarCall'
+#require 'rbbt/entity/ARGOVarCall'
 
