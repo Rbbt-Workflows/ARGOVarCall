@@ -231,8 +231,10 @@ module ARGOVarCall
     TSV.traverse step(:combine_vcf), :type => :line, :bar => self.progress_bar("Adding validation information"), :into => :stream do |line|
       next line if line =~ /^##/
       if line =~ /^#?CHR/
-        '##INFO=<ID=UniqueRegionID,Number=1,Type=String,Description="Unique ID of ambiguously reported mutation">' + "\n" +
+        '##INFO=<ID=UniqueRegionID,Number=1,Type=String,Description="Unique ID of region harboring consecutive or overlapping mutations, used to avoid double counting">' + "\n" +
         '##INFO=<ID=ValidatedBy,Number=.,Type=String,Description="Callers that validate the mutation, posibly with different mutations">' + "\n" +
+        '##INFO=<ID=NumCallers,Number=1,Type=Integer,Description="Number of callers that call the mutation">' + "\n" +
+        '##INFO=<ID=NumValidators,Number=1,Type=Integer,Description="Number of callers that validate the mutation, posibly with different mutations">' + "\n" +
           line
       else
         parts = line.split("\t")
@@ -246,6 +248,8 @@ module ARGOVarCall
           info["ValidatedBy"] = info["CalledBy"]
           info["UniqueRegionID"] = Misc.digest(mutation)
         end
+        info["NumCallers"] = info["CalledBy"].split(",").length
+        info["NumValidators"] = info["ValidatedBy"].split(",").length
         parts[7] = info.collect{|p| p * "=" } * ";"
 
         parts * "\t"
