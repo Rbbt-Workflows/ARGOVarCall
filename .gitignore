@@ -3,3 +3,5 @@ pkg
 .save
 .crap
 tmp
+.nextflow*
+nextflow/work

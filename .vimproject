@@ -10,4 +10,7 @@ ARGO-VarCall=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sa
  }
  data=data filter="*"{
  }
+ nextflow=nextflow filter="*"{
+  main.nf
+ }
 }
