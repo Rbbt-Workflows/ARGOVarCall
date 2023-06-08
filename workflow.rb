@@ -21,6 +21,8 @@ module ARGOVarCall
         chr, pos, rsid, ref, alts, qual, filter = parts
         pos = pos.to_i
 
+        rsid = '.'
+
         filter = filter.split(";").collect{|v| v.split("--").first }.uniq * "+"
 
         new_pos, muts = Misc.correct_vcf_mutation(pos, ref, alts)

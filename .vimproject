@@ -1,5 +1,6 @@
 ARGO-VarCall=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
  workflow.rb
+ README.md
  bin=bin filter="*"{
  }
  lib=lib {
