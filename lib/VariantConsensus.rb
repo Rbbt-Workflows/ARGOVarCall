@@ -1,4 +1,4 @@
-module ARGOVarCall
+module VariantConsensus
   def self.filter_overlaps(mutations)
     filtered = []
     eend = nil

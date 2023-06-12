@@ -3,10 +3,10 @@ require 'rbbt/workflow'
 
 Misc.add_libdir if __FILE__ == $0
 
-require 'ARGOVarCall'
+require 'VariantConsensus'
 
 Workflow.require_workflow "HTS"
-module ARGOVarCall
+module VariantConsensus
   module CompareIndels
     extend Workflow
 
@@ -143,7 +143,7 @@ module ARGOVarCall
             chr, pos, alt = parts.values_at 0,5,6
             [chr, pos.to_i - seq_start, alt] * ":"
           end
-          vc_sequences[vc] = ARGOVarCall.dna_after_mutations(seq, changes)
+          vc_sequences[vc] = VariantConsensus.dna_after_mutations(seq, changes)
         end
         range_sequences[range] = vc_sequences
       end
@@ -338,8 +338,8 @@ module ARGOVarCall
   
 end
 
-#require 'ARGOVarCall/tasks/basic.rb'
+#require 'VariantConsensus/tasks/basic.rb'
 
-#require 'rbbt/knowledge_base/ARGOVarCall'
-#require 'rbbt/entity/ARGOVarCall'
+#require 'rbbt/knowledge_base/VariantConsensus'
+#require 'rbbt/entity/VariantConsensus'
 
