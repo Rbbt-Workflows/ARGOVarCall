@@ -2,19 +2,19 @@
 
 If you had Rbbt installed the command would be
 
-`rbbt workflow task ARGOVarCall consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3>`
+`rbbt workflow task VariantConsensus consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3>`
 
 Where the vcfs are separated by commas and the names of the callers are also specified in the same order, or it will use the basenames of the files and it could get messy. You can also see more parameters doing
 
-`rbbt workflow task ARGOVarCall consensus_vcf -h`
+`rbbt workflow task VariantConsensus consensus_vcf -h`
 
 # Singularity
  
-I think the simplest way to use it is with singularity. There is an image here https://b2drop.bsc.es/index.php/s/t36z8mT3mmqoNJ5 called rbbt-ARGOVarCall.sif
+I think the simplest way to use it is with singularity. There is an image here https://b2drop.bsc.es/index.php/s/t36z8mT3mmqoNJ5 called rbbt-VariantConsensus.sif
 
 Download it and do:
 
-`singularity run rbbt-ARGOVarCall.sif  rbbt workflow task ARGOVarCall consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3>`
+`singularity run rbbt-VariantConsensus.sif  rbbt workflow task VariantConsensus consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3>`
 
 and it should work seamlessly like a regular install
 
@@ -24,11 +24,11 @@ There is a also a docker container here https://hub.docker.com/repository/docker
 
 So you would do
 
-`docker run <mounts> mikisvaz/rbbt-argovarcall rbbt workflow task ARGOVarCall consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3>`
+`docker run <mounts> mikisvaz/rbbt-argovarcall rbbt workflow task VariantConsensus consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3>`
 
 The problem with docker mounting the directories. The <mounts> is to make sure that the files from the callers are available to docker. Also, the intermediate files, which sill be created under '/root/.rbbt/var/jobs'. You can also change the directory that rbbt creates the files with
 
-`docker run <mounts> mikisvaz/rbbt-argovarcall rbbt workflow task ARGOVarCall consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3> --workdir_all <somedir>`
+`docker run <mounts> mikisvaz/rbbt-argovarcall rbbt workflow task VariantConsensus consensus_vcf --vcf_list <caller1.vcf>,<caller2.vcf>,<caller3.vcf> --caller_names <caller1>,<caller2>,<caller3> --workdir_all <somedir>`
 
 # Nextflow
 

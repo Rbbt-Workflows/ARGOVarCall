@@ -1,6 +1,3 @@
-require 'rbbt-util'
-require 'rbbt/workflow'
-
 Misc.add_libdir if __FILE__ == $0
 
 require 'VariantConsensus'
@@ -16,7 +13,7 @@ module VariantConsensus
       parser = TSV::Parser.new vcf, :type => :list
       dumper = TSV::Dumper.new :key_field => "Mutation ID", :fields => ["Start", "Delete", "Added", "Genomic mutation", "CHR"] + parser.fields, :type => :list
       dumper.init
-      TSV.traverse parser, :type => :array, :into => dumper, :bar => self.progress_bar("Finding mutation positions") do |chr,values|
+      TSV.traverse parser, :into => dumper, :bar => self.progress_bar("Finding mutation positions") do |chr,values|
         parts = [chr] + values
         chr, pos, rsid, ref, alts, qual, filter = parts
         pos = pos.to_i
@@ -50,11 +47,13 @@ module VariantConsensus
 
     dep :ranges
     task :overlaps => :tsv do
-      io = CMD.cmd('sort -k1,1 -k2,2n', :in => step(:ranges).get_stream, :pipe => true)
+      step(:ranges).join
+      s = step(:ranges).path.open
+      io = CMD.cmd('sort -k1,1 -k2,2n', :in => s, :pipe => true)
 
       chunk = []
       chunk_start, chunk_end, chunk_chr = nil, nil, nil
-      slack = 1
+      slack = 0
       tsv = TSV.setup({}, "Range~Mutation ID#:type=:flat")
       TSV.traverse io, :type => :array, :bar => self.progress_bar("Finding overlaps") do |line|
         chr, start, ins, del, id = line.split("\t")
@@ -92,19 +91,19 @@ module VariantConsensus
       tsv
     end
 
-    helper :chromosome do |code|
+    helper :chromosome do |code,organism="Hsa/may2017"|
       @chromosomes ||= {}
       @chromosomes[code] ||= begin
                                require 'rbbt/sources/organism'
-                               organism = "Hsa/may2017"
                                code = "MT" if code == "chrM"
                                Organism.send("chromosome_#{code.sub('chr','')}", organism).read
                              end
     end
 
 
+    input :organism, :select, "Organism code", "Hsa/may2017"
     dep :overlaps, :compute => :produce
-    task :reconstructed_sequence => :tsv do
+    task :reconstructed_sequence => :tsv do |organism|
       pad = 3
       range_sequences = {}
       overlaps = step(:overlaps).path.tsv
@@ -118,7 +117,7 @@ module VariantConsensus
         eend = eend.to_i
 
         chr_sequence = begin
-                         chromosome(chr).dup
+                         chromosome(chr, organism).dup
                        rescue 
                          next
                        end

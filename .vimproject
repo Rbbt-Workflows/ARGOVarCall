@@ -1,10 +1,10 @@
-ARGO-VarCall=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
+VariantConsensus=/$PWD filter="*.rb *.rake Rakefile *.rdoc *.R *.sh *.js *.haml *.sass *.txt *.conf" {
  workflow.rb
  README.md
  bin=bin filter="*"{
  }
  lib=lib {
-  ARGOVarCall.rb
+  VariantConsensus.rb
  }
  test=test {
   test_helper.rb
