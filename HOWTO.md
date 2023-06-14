@@ -10,7 +10,7 @@ Where the vcfs are separated by commas and the names of the callers are also spe
 
 # Singularity
  
-I think the simplest way to use it is with singularity. There is an image here https://b2drop.bsc.es/index.php/s/t36z8mT3mmqoNJ5 called rbbt-VariantConsensus.sif
+I think the simplest way to use it is with singularity. There is an image here https://b2drop.bsc.es/index.php/s/3xJ9jmrz9RkQ4fL called rbbt-VariantConsensus.sif
 
 Download it and do:
 
@@ -20,7 +20,7 @@ and it should work seamlessly like a regular install
 
 # Docker
 
-There is a also a docker container here https://hub.docker.com/repository/docker/mikisvaz/rbbt-argovarcall
+There is a also a docker container here https://hub.docker.com/repository/docker/mikisvaz/rbbt-variantconsensus
 
 So you would do
 
