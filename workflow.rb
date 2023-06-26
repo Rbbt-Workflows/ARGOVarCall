@@ -1,8 +1,8 @@
+require 'rbbt-util'
 Misc.add_libdir if __FILE__ == $0
 
 require 'VariantConsensus'
 
-Workflow.require_workflow "HTS"
 module VariantConsensus
   module CompareIndels
     extend Workflow
@@ -207,7 +207,7 @@ module VariantConsensus
 
   extend Workflow
 
-  input :vcf_list, :array, "Array of VCF files to process", nil, :required => true
+  input :vcf_list, :file_array, "Array of VCF files to process", nil, :required => true
   input :caller_names, :array, "Corresponding names for the files (must have same length)"
   extension :vcf
   task :combine_vcf => :text do |vcf_list, caller_names|
@@ -217,7 +217,7 @@ module VariantConsensus
       list = Misc.zip2hash(vcf_list.collect{|f| File.basename(f).sub(/\.vcf(\.gz)?$/i,'')}, vcf_list)
     end
 
-    HTS.combine_caller_vcfs(list)
+    VariantConsensus.combine_caller_vcfs(list)
   end
 
   dep :combine_vcf

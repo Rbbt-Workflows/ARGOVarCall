@@ -1,3 +1,5 @@
+require_relative 'VariantConsensus/combine_vcfs'
+
 module VariantConsensus
   def self.filter_overlaps(mutations)
     filtered = []
